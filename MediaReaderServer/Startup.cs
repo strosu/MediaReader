@@ -1,12 +1,12 @@
+using MediaReaderServer.Controllers;
+using MediaReaderServer.Repository;
+using MediaReaderServer.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MediaReaderServer
 {
@@ -16,6 +16,18 @@ namespace MediaReaderServer
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            RegisterServices(services);
+
+            services.AddMvc(
+                options => {
+                    options.EnableEndpointRouting = false;
+                });
+        }
+
+        private void RegisterServices(IServiceCollection services)
+        {
+            services.AddScoped<IArticleService, ArticleService>();
+            services.AddScoped<IArticleRepository, ArticleRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -26,15 +38,21 @@ namespace MediaReaderServer
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStatusCodePages();
             app.UseRouting();
+            app.UseStaticFiles();
 
-            app.UseEndpoints(endpoints =>
+            app.UseMvc(routes =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
-            });
+                routes.MapRoute(
+                    name: "Get",
+                    template: "/Article/{id:int}",
+                    defaults: new { controller = "Article", action = nameof(ArticleController.Get) });
+                routes.MapRoute(
+                    name: "default",
+                    template: "/{controller}/{action}/{id?}",
+                    defaults: new { controller = "Article" , action = nameof(ArticleController.ListAll) });
+                    });
         }
     }
 }
