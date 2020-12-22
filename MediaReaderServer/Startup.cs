@@ -16,12 +16,9 @@ namespace MediaReaderServer
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            RegisterServices(services);
+            services.AddControllers();
 
-            services.AddMvc(
-                options => {
-                    options.EnableEndpointRouting = false;
-                });
+            RegisterServices(services);
         }
 
         private void RegisterServices(IServiceCollection services)
@@ -39,20 +36,14 @@ namespace MediaReaderServer
             }
 
             app.UseStatusCodePages();
-            app.UseRouting();
             app.UseStaticFiles();
 
-            app.UseMvc(routes =>
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
             {
-                routes.MapRoute(
-                    name: "Get",
-                    template: "/Article/{id:int}",
-                    defaults: new { controller = "Article", action = nameof(ArticleController.Get) });
-                routes.MapRoute(
-                    name: "default",
-                    template: "/{controller}/{action}/{id?}",
-                    defaults: new { controller = "Article" , action = nameof(ArticleController.ListAll) });
-                    });
+                endpoints.MapControllers();
+            });
         }
     }
 }

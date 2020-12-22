@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MediaReaderServer.Controllers
 {
+    [ApiController]
+    [Produces("application/json")]
+    [Route("api/[controller]")]
     public class ArticleController : Controller
     {
         private readonly IArticleService _articleService;
@@ -12,18 +15,23 @@ namespace MediaReaderServer.Controllers
         {
             _articleService = articleService;
         }
-
+        
+        //[HttpGet("")]
+        [Route("")]
         public IActionResult ListAll()
         {
             return Ok(_articleService.GetAll());
         }
 
-        public IActionResult Get(int id)
+        //[HttpGet("Get/{id}")]
+        [Route("Get/{id}")]
+        public IActionResult Get([FromRoute]int id)
         {
             return Ok(_articleService.GetById(id));
         }
 
-        public IActionResult Submit(ArticleModel articleModel)
+        [HttpPost("Submit")]
+        public IActionResult Submit([FromForm]ArticleModel articleModel)
         {
             var created = _articleService.Create(articleModel);
             
